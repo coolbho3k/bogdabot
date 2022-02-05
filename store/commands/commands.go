@@ -2,7 +2,9 @@ package commands
 
 import (
 	"bogdabot/util"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -44,6 +46,9 @@ func New() (Store, error) {
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
 			return nil, err
+		}
+		if !json.Valid(data) {
+			return nil, errors.New(fmt.Sprintf("command file %s is invlaid JSON", file))
 		}
 		responseMap[filepath.Base(file[:len(file)-len(filepath.Ext(file))])] = string(data)
 	}
