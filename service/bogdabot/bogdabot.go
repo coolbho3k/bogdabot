@@ -19,11 +19,6 @@ type bogdabotService struct {
 }
 
 func (p *bogdabotService) Handle(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" {
-		http.Error(w, "method not allowed", 405)
-		return
-	}
-
 	path := strings.Split(req.URL.Path, "/")
 	if len(path) < 1 {
 		http.Error(w, "could not parse path", 400)
@@ -33,6 +28,10 @@ func (p *bogdabotService) Handle(w http.ResponseWriter, req *http.Request) {
 	if response, err := p.store.GetResponseByPath(path[1]); err != nil {
 		http.Error(w, "could not find path", 404)
 	} else {
+		if req.Method != "POST" {
+			http.Error(w, "method not allowed", 405)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := fmt.Fprintf(w, response); err != nil {
 			http.Error(w, "could not write body", 400)
