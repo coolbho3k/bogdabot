@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go.uber.org/fx"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -19,13 +20,13 @@ type bogdabotService struct {
 }
 
 func (p *bogdabotService) Handle(w http.ResponseWriter, req *http.Request) {
-	path := strings.Split(req.URL.Path, "/")
-	if len(path) < 1 {
+	requestPath := strings.Split(path.Clean(req.URL.Path), "/")
+	if len(requestPath) != 2 {
 		http.Error(w, "could not parse path", 400)
 		return
 	}
 
-	if response, err := p.store.GetResponseByPath(path[1]); err != nil {
+	if response, err := p.store.GetResponseByPath(requestPath[1]); err != nil {
 		http.Error(w, "could not find path", 404)
 	} else {
 		if req.Method != "POST" {
